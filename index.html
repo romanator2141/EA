@@ -76,9 +76,14 @@
       border-bottom: 1px solid rgba(201,169,110,0.12);
     }
     .nav-logo {
-      font-size: 1.5rem; letter-spacing: 0.35em; text-transform: uppercase;
-      color: var(--gold); font-weight: 400; text-decoration: none;
+      display: inline-flex; align-items: center; text-decoration: none;
     }
+    .nav-logo img {
+      height: 28px; width: auto;
+      filter: invert(1) brightness(2);
+      transition: opacity var(--transition);
+    }
+    .nav-logo:hover img { opacity: 0.75; }
     .nav-links { display: flex; gap: 2.5rem; list-style: none; }
     .nav-links a {
       color: var(--text-muted); text-decoration: none;
@@ -136,6 +141,12 @@
       50%       { opacity: 0.8; transform: scale(1.15); }
     }
 
+    .hero-logo {
+      height: 52px; width: auto;
+      filter: invert(1) brightness(2);
+      margin-bottom: 2.5rem;
+      opacity: 0; animation: fadeUp 1s forwards 0.3s;
+    }
     .hero-eyebrow {
       font-family: 'Arial', sans-serif;
       font-size: 0.68rem; letter-spacing: 0.4em; text-transform: uppercase;
@@ -280,13 +291,13 @@
     }
     .product-card:hover .product-bg { transform: scale(1.05); }
 
-    /* Candle illustration per card */
-    .candle-art {
+    .candle-photo {
       position: absolute; inset: 0;
-      display: flex; align-items: center; justify-content: center;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform var(--transition);
     }
-    .candle-svg { transition: transform var(--transition); }
-    .product-card:hover .candle-svg { transform: translateY(-8px); }
+    .product-card:hover .candle-photo { transform: scale(1.06); }
 
     .product-overlay {
       position: absolute; inset: 0;
@@ -614,7 +625,9 @@
 
 <!-- ── Navigation ───────────────────────────────────────────── -->
 <nav id="navbar">
-  <a href="#hero" class="nav-logo">RUKSKE</a>
+  <a href="#hero" class="nav-logo">
+    <img src="https://rukske.com/cdn/shop/files/Rukske_logo_blk_90x.png?v=1613505344" alt="RUKSKE" />
+  </a>
   <ul class="nav-links">
     <li><a href="#shop">Shop</a></li>
     <li><a href="#about">About</a></li>
@@ -629,6 +642,7 @@
 <section id="hero">
   <div class="hero-glow glow-1"></div>
   <div class="hero-glow glow-2"></div>
+  <img class="hero-logo" src="https://rukske.com/cdn/shop/files/Rukske_logo_blk_90x.png?v=1613505344" alt="RUKSKE" />
   <p class="hero-eyebrow">Handcrafted Luxury · Since 2020</p>
   <h1 class="hero-title">
     Burn<br><span>Something</span><br>Beautiful
@@ -819,16 +833,16 @@
 <script>
 /* ── Data ──────────────────────────────────────────────────── */
 const products = [
-  { name: "Black Oud",    price: "$65", badge: "sold-out", color1: "#1a0e0a", color2: "#2d1a10" },
-  { name: "Goldie",       price: "$65", badge: null,       color1: "#1a1506", color2: "#2e2408" },
-  { name: "Hidden Cali",  price: "$65", badge: null,       color1: "#0a1208", color2: "#16261a" },
-  { name: "Hidden Track", price: "$65", badge: null,       color1: "#0a0a14", color2: "#14142a" },
-  { name: "Hiroko",       price: "$65", badge: null,       color1: "#14080e", color2: "#280e1c" },
-  { name: "Jacó Rain",    price: "$30", badge: "sale",     oldPrice: "$65",   color1: "#081214", color2: "#0e2228" },
-  { name: "Rose Oud",     price: "$65", badge: null,       color1: "#180a10", color2: "#2c1020" },
-  { name: "Softcore",     price: "$65", badge: null,       color1: "#141010", color2: "#261c1c" },
-  { name: "Trois No.2",   price: "$65", badge: "sold-out", color1: "#0e0e0e", color2: "#1e1e1e" },
-  { name: "Willow",       price: "$65", badge: null,       color1: "#0c1208", color2: "#1a2410" },
+  { name: "Black Oud",    price: "$65", badge: "sold-out", img: "https://rukske.com/cdn/shop/products/Candle-3qtr_e9bf29e0-b117-429a-b95f-c4f4fb48c48e_600x600.jpg?v=1581159262" },
+  { name: "Goldie",       price: "$65", badge: null,       img: "https://rukske.com/cdn/shop/products/Candle-3qtr_9872e892-deed-4a46-8d76-09ac313b4760_600x600.jpg?v=1651771532" },
+  { name: "Hidden Cali",  price: "$65", badge: null,       img: "https://rukske.com/cdn/shop/products/Candle-3qtr_1080x_a6347d5e-0a74-4d5e-945e-f6a6091344a7_600x600.jpg?v=1599510761" },
+  { name: "Hidden Track", price: "$65", badge: null,       img: "https://rukske.com/cdn/shop/products/Candle-3qtr_1be361e8-8a4c-4448-b264-d296aac0e2d4_600x600.jpg?v=1581159573" },
+  { name: "Hiroko",       price: "$65", badge: null,       img: "https://rukske.com/cdn/shop/products/Candle-3qtr_bb746983-98fa-4142-b164-320b8701ef15_600x600.jpg?v=1756927819" },
+  { name: "Jacó Rain",    price: "$30", badge: "sale",     oldPrice: "$65", img: "https://rukske.com/cdn/shop/products/Candle-3qtr_db602a87-78f9-44cd-b9e2-7420ffab5498_600x600.jpg?v=1581159669" },
+  { name: "Rose Oud",     price: "$65", badge: null,       img: "https://rukske.com/cdn/shop/products/RUKSKEWEBCANDLE_600x600.webp?v=1649452109" },
+  { name: "Softcore",     price: "$65", badge: null,       img: "https://rukske.com/cdn/shop/products/Candle-3qtr_bb746983-98fa-4142-b164-320b8701ef15_600x600.jpg?v=1756927819" },
+  { name: "Trois No.2",   price: "$65", badge: "sold-out", img: "https://rukske.com/cdn/shop/products/Candle-3qtr_5348632f-f62e-4bd7-8445-e82087e9ab50_600x600.jpg?v=1581159846" },
+  { name: "Willow",       price: "$65", badge: null,       img: "https://rukske.com/cdn/shop/products/Candle-3qtr_c29832a5-f98e-43eb-a049-f382656b65dc_600x600.jpg?v=1581159955" },
 ];
 
 const scentProfiles = [
@@ -873,43 +887,7 @@ const marqueeItems = ["Black Oud","Goldie","Hidden Cali","Hidden Track","Hiroko"
       : '';
 
     card.innerHTML = `
-      <div class="product-bg" style="background:linear-gradient(160deg,${p.color1},${p.color2})"></div>
-      <div class="candle-art">
-        <svg class="candle-svg" width="70" height="160" viewBox="0 0 70 160">
-          <!-- flame -->
-          <ellipse cx="35" cy="18" rx="8" ry="18"
-            fill="url(#flame-${p.name.replace(/\s/g,'')})"
-            style="filter:blur(1px)">
-            <animateTransform attributeName="transform" type="scale"
-              values="1 1;0.88 1.1;1.05 0.92;0.92 1.06;1 1"
-              dur="${1.5 + Math.random()*1}s" repeatCount="indefinite"
-              additive="sum" />
-          </ellipse>
-          <!-- wick -->
-          <rect x="33.5" y="30" width="3" height="14" rx="1.5" fill="#555"/>
-          <!-- body -->
-          <rect x="18" y="44" width="34" height="110" rx="3"
-            fill="url(#body-${p.name.replace(/\s/g,'')})"/>
-          <!-- label area -->
-          <rect x="20" y="90" width="30" height="36" rx="1"
-            fill="rgba(0,0,0,0.25)"/>
-          <text x="35" y="108" text-anchor="middle" fill="rgba(201,169,110,0.7)"
-            font-size="5" font-family="Arial" letter-spacing="0.5">RUKSKE</text>
-          <defs>
-            <radialGradient id="flame-${p.name.replace(/\s/g,'')}" cx="50%" cy="80%" r="50%">
-              <stop offset="0%"   stop-color="#fff9e0"/>
-              <stop offset="35%"  stop-color="#ffd060"/>
-              <stop offset="70%"  stop-color="#c06020"/>
-              <stop offset="100%" stop-color="transparent"/>
-            </radialGradient>
-            <linearGradient id="body-${p.name.replace(/\s/g,'')}" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%"   stop-color="${p.color1}"/>
-              <stop offset="50%"  stop-color="${p.color2}"/>
-              <stop offset="100%" stop-color="${p.color1}"/>
-            </linearGradient>
-          </defs>
-        </svg>
-      </div>
+      <img class="candle-photo" src="${p.img}" alt="${p.name}" loading="lazy" />
       ${badgeHTML}
       <div class="product-overlay">
         <div class="product-name">${p.name}</div>
