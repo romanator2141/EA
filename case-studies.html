@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Case Studies — Kinesis Media</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#08090E;--bg2:#0D0F18;--bg3:#111420;--bg4:#161A28;
+  --c1:#00F0C0;--c1d:rgba(0,240,192,.12);--c1d2:rgba(0,240,192,.06);
+  --c2:#FF3E6C;--c2d:rgba(255,62,108,.1);
+  --c3:#7B5CF0;--c3d:rgba(123,92,240,.1);
+  --text:#EDF0FF;--muted:#5A6282;--sub:#252838;
+  --grad:linear-gradient(135deg,var(--c1),var(--c3));
+  --display:'Syne',sans-serif;
+  --body:'Inter',system-ui,sans-serif;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--body);font-weight:300;overflow-x:hidden;cursor:none;-webkit-font-smoothing:antialiased}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9001;opacity:.025;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:200px}
+a,button{cursor:none}
+
+/* scroll bar */
+#spbar{position:fixed;top:0;left:0;height:2px;background:var(--grad);z-index:9999;transform-origin:left;transform:scaleX(0);width:100%}
+
+/* cursor */
+#cdot{position:fixed;width:7px;height:7px;background:var(--c1);border-radius:50%;pointer-events:none;z-index:9997;transform:translate(-50%,-50%);transition:width .15s,height .15s}
+#cring{position:fixed;width:36px;height:36px;border:1px solid rgba(0,240,192,.4);border-radius:50%;pointer-events:none;z-index:9996;transform:translate(-50%,-50%);transition:width .4s var(--ease),height .4s var(--ease),border-color .3s}
+#clabel{position:fixed;font-family:var(--display);font-size:.52rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--c1);pointer-events:none;z-index:9997;transform:translate(14px,-20px);opacity:0;transition:opacity .2s;white-space:nowrap}
+body.c-hov #cring{width:52px;height:52px;border-color:var(--c1)}
+body.c-hov #cdot{width:10px;height:10px}
+body.c-hov #clabel{opacity:1}
+body.c-clk #cdot{transform:translate(-50%,-50%) scale(.35)}
+
+/* nav */
+nav{position:fixed;top:0;left:0;width:100%;z-index:500;display:flex;align-items:center;justify-content:space-between;padding:1.8rem 5vw;transition:padding .6s var(--ease),background .5s,border-color .5s}
+nav.scrolled{padding:1.1rem 5vw;background:rgba(8,9,14,.9);backdrop-filter:blur(24px) saturate(1.4);border-bottom:1px solid rgba(0,240,192,.07)}
+.nav-logo{text-decoration:none;display:flex;align-items:center;gap:.6rem}
+.nav-logo-mark{width:32px;height:32px;background:var(--grad);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);flex-shrink:0}
+.nav-logo-text{font-family:var(--display);font-size:.85rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text)}
+.nav-links{display:flex;gap:2.5rem;list-style:none}
+.nav-links a{font-family:var(--display);font-size:.7rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);text-decoration:none;position:relative;transition:color .3s}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1px;background:var(--c1);transition:width .35s var(--ease)}
+.nav-links a:hover,.nav-links a.active{color:var(--c1)}
+.nav-links a:hover::after,.nav-links a.active::after{width:100%}
+.nav-cta{font-family:var(--display);font-size:.68rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--bg);background:var(--c1);border:none;padding:.65rem 1.6rem;cursor:none;text-decoration:none;transition:transform .3s var(--ease),box-shadow .3s,background .3s;display:inline-flex}
+.nav-cta:hover{transform:translateY(-2px);box-shadow:0 16px 40px rgba(0,240,192,.3);background:#1FFFD4}
+
+/* ── Page hero ── */
+#page-hero{padding:14rem 5vw 7rem;position:relative;overflow:hidden;text-align:center}
+.ph-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,240,192,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,240,192,.02) 1px,transparent 1px);background-size:70px 70px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 40%,transparent 100%);pointer-events:none}
+.ph-glow{position:absolute;width:700px;height:500px;border-radius:50%;filter:blur(120px);top:0;left:50%;transform:translateX(-50%);background:radial-gradient(circle,rgba(0,240,192,.07) 0%,rgba(123,92,240,.05) 50%,transparent 70%);pointer-events:none}
+.ph-inner{position:relative;z-index:1;max-width:800px;margin:0 auto}
+.eyebrow{font-family:var(--display);font-size:.6rem;font-weight:600;letter-spacing:.5em;text-transform:uppercase;color:var(--c1);display:flex;align-items:center;gap:.8rem;justify-content:center;margin-bottom:1.2rem}
+.eyebrow::before{content:'';display:block;width:20px;height:1px;background:var(--c1)}
+.eyebrow::after{content:'';display:block;width:20px;height:1px;background:var(--c1)}
+.ph-title{font-family:var(--display);font-size:clamp(3.5rem,8vw,8rem);font-weight:800;letter-spacing:-.03em;line-height:.92;color:var(--text)}
+.ph-title em{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-style:normal}
+.ph-sub{font-size:1rem;line-height:1.9;color:var(--muted);margin-top:1.8rem;max-width:520px;margin-left:auto;margin-right:auto}
+
+/* ── Filter tabs ── */
+#filters{padding:0 5vw 5rem;position:sticky;top:60px;z-index:100;background:rgba(8,9,14,.95);backdrop-filter:blur(20px);padding-top:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid rgba(255,255,255,.04)}
+.filter-inner{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center}
+.filter-label{font-family:var(--display);font-size:.58rem;font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);margin-right:.5rem}
+.filter-btn{font-family:var(--display);font-size:.62rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;padding:.5rem 1.3rem;border:1px solid rgba(255,255,255,.08);background:transparent;color:var(--muted);cursor:none;transition:all .3s}
+.filter-btn:hover{border-color:rgba(0,240,192,.4);color:var(--c1)}
+.filter-btn.active{border-color:var(--c1);background:var(--c1d);color:var(--c1)}
+
+/* ── Case studies grid ── */
+#cases{padding:5rem 5vw 9rem}
+.cases-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:1.5rem}
+
+/* ── Case card ── */
+.case-card{position:relative;overflow:hidden;background:var(--bg2);cursor:none;transition:transform .5s var(--ease),box-shadow .5s;display:flex;flex-direction:column}
+.case-card:hover{transform:translateY(-8px);box-shadow:0 40px 100px rgba(0,0,0,.7)}
+.case-card.span-7{grid-column:span 7}
+.case-card.span-5{grid-column:span 5}
+.case-card.span-12{grid-column:span 12;display:grid;grid-template-columns:1fr 1fr}
+.case-card.span-4{grid-column:span 4}
+.case-card.hidden{display:none}
+.cc-visual{position:relative;overflow:hidden;aspect-ratio:16/10;flex-shrink:0}
+.case-card.span-12 .cc-visual{aspect-ratio:auto;min-height:420px}
+.cc-bg{position:absolute;inset:0;transition:transform .7s var(--ease)}
+.case-card:hover .cc-bg{transform:scale(1.05)}
+.cc-ov{position:absolute;inset:0;z-index:2;transition:background .4s}
+.cc-badge{position:absolute;top:1.5rem;left:1.5rem;z-index:3}
+.cc-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:3;opacity:0;transition:opacity .35s}
+.case-card:hover .cc-play{opacity:1}
+.cc-play-btn{width:58px;height:58px;border-radius:50%;background:var(--c1);display:flex;align-items:center;justify-content:center;transform:scale(.7);transition:transform .4s var(--ease)}
+.case-card:hover .cc-play-btn{transform:scale(1)}
+.cc-play-icon{width:0;height:0;border-style:solid;border-width:9px 0 9px 18px;border-color:transparent transparent transparent var(--bg);margin-left:3px}
+
+/* card body */
+.cc-body{padding:2.5rem;display:flex;flex-direction:column;flex:1}
+.case-card.span-12 .cc-body{padding:3rem}
+.cc-tags{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.5rem}
+.tag{display:inline-flex;align-items:center;padding:.25rem .75rem;font-family:var(--display);font-size:.52rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase;border:1px solid;border-radius:2px}
+.tag-c1{color:var(--c1);border-color:rgba(0,240,192,.35);background:var(--c1d)}
+.tag-c2{color:var(--c2);border-color:rgba(255,62,108,.35);background:var(--c2d)}
+.tag-c3{color:var(--c3);border-color:rgba(123,92,240,.35);background:var(--c3d)}
+.cc-title{font-family:var(--display);font-size:1.5rem;font-weight:800;letter-spacing:-.02em;line-height:1.1;color:var(--text);margin-bottom:.8rem;transition:color .3s}
+.case-card.span-12 .cc-title{font-size:2.2rem}
+.case-card:hover .cc-title{color:var(--c1)}
+.cc-client{font-family:var(--display);font-size:.62rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:1.2rem}
+.cc-desc{font-size:.85rem;line-height:1.85;color:var(--muted);flex:1}
+.cc-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.04);margin-top:2rem;border-top:1px solid rgba(255,255,255,.04);padding-top:2rem}
+.case-card.span-5 .cc-metrics{grid-template-columns:1fr 1fr}
+.case-card.span-4 .cc-metrics{grid-template-columns:1fr 1fr}
+.ccm{padding:.8rem 0}
+.ccm-val{font-family:var(--display);font-size:1.5rem;font-weight:800;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
+.ccm-label{font-family:var(--display);font-size:.5rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-top:.3rem}
+.cc-link{display:inline-flex;align-items:center;gap:.6rem;font-family:var(--display);font-size:.62rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--c1);text-decoration:none;margin-top:2rem;opacity:0;transform:translateX(-6px);transition:opacity .35s,transform .35s var(--ease),gap .3s}
+.case-card:hover .cc-link{opacity:1;transform:translateX(0)}
+.cc-link:hover{gap:1rem}
+
+/* ── Full case study modal/expanded ── */
+.cs-detail{display:none;position:fixed;inset:0;z-index:800;overflow-y:auto;background:var(--bg)}
+.cs-detail.open{display:block}
+.csd-close{position:fixed;top:1.5rem;right:5vw;z-index:810;width:48px;height:48px;border:1px solid rgba(255,255,255,.1);background:var(--bg2);color:var(--text);font-size:1.3rem;display:flex;align-items:center;justify-content:center;cursor:none;transition:all .3s}
+.csd-close:hover{border-color:var(--c1);color:var(--c1)}
+.csd-hero{min-height:65vh;display:flex;flex-direction:column;justify-content:flex-end;padding:5rem 5vw 4rem;position:relative;overflow:hidden}
+.csd-bg{position:absolute;inset:0;transition:transform 20s linear}
+.csd-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(8,9,14,1) 0%,rgba(8,9,14,.5) 50%,rgba(8,9,14,.2) 100%)}
+.csd-inner{position:relative;z-index:2;max-width:800px}
+.csd-tags{display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:1.5rem}
+.csd-title{font-family:var(--display);font-size:clamp(2.5rem,6vw,6rem);font-weight:800;letter-spacing:-.03em;line-height:.95;color:var(--text);margin-bottom:.8rem}
+.csd-client{font-family:var(--display);font-size:.72rem;font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:var(--c1)}
+.csd-body{padding:5rem 5vw;max-width:1200px;margin:0 auto}
+.csd-grid{display:grid;grid-template-columns:2fr 1fr;gap:5rem;align-items:start}
+.csd-content h2{font-family:var(--display);font-size:1.6rem;font-weight:700;letter-spacing:-.01em;color:var(--text);margin-bottom:1rem}
+.csd-content h3{font-family:var(--display);font-size:1.1rem;font-weight:700;color:var(--c1);margin:2.5rem 0 .8rem;letter-spacing:.02em}
+.csd-content p{font-size:.92rem;line-height:1.95;color:var(--muted);margin-bottom:1.2rem}
+.csd-content ul{list-style:none;display:flex;flex-direction:column;gap:.7rem;margin-bottom:1.5rem}
+.csd-content ul li{font-size:.88rem;line-height:1.7;color:var(--muted);display:flex;gap:.8rem;align-items:flex-start}
+.csd-content ul li::before{content:'◆';color:var(--c1);font-size:.5rem;flex-shrink:0;margin-top:.35rem}
+.csd-sidebar{position:sticky;top:100px}
+.csd-meta{background:var(--bg2);border:1px solid rgba(255,255,255,.04);padding:2.5rem;margin-bottom:1.5rem}
+.csd-meta-title{font-family:var(--display);font-size:.6rem;font-weight:700;letter-spacing:.35em;text-transform:uppercase;color:var(--muted);margin-bottom:1.5rem}
+.csd-meta-row{display:flex;justify-content:space-between;align-items:flex-start;padding:.7rem 0;border-bottom:1px solid rgba(255,255,255,.04);gap:1rem}
+.csd-meta-row:last-child{border-bottom:none}
+.csd-meta-key{font-family:var(--display);font-size:.6rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--muted)}
+.csd-meta-val{font-family:var(--display);font-size:.75rem;font-weight:600;color:var(--text);text-align:right}
+.csd-kpis{background:var(--bg2);border:1px solid rgba(255,255,255,.04);padding:2.5rem}
+.csd-kpis-title{font-family:var(--display);font-size:.6rem;font-weight:700;letter-spacing:.35em;text-transform:uppercase;color:var(--muted);margin-bottom:1.5rem}
+.csd-kpi{padding:1.2rem 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.csd-kpi:last-child{border-bottom:none}
+.csd-kpi-val{font-family:var(--display);font-size:2.2rem;font-weight:800;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
+.csd-kpi-label{font-family:var(--display);font-size:.58rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-top:.35rem}
+.csd-quote{background:var(--bg3);border-left:2px solid var(--c1);padding:2rem 2.5rem;margin:3rem 0;font-family:var(--display);font-size:1.1rem;font-weight:500;line-height:1.65;color:var(--text);font-style:italic}
+.csd-quote-author{font-family:var(--display);font-size:.6rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--c1);margin-top:1rem;font-style:normal}
+
+/* ── Impact section ── */
+#impact{padding:7rem 5vw;background:var(--bg2);text-align:center;overflow:hidden}
+.impact-inner{max-width:1200px;margin:0 auto}
+.impact-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(255,255,255,.04);margin-top:4rem}
+.imp-card{background:var(--bg3);padding:3rem 2rem;position:relative;overflow:hidden}
+.imp-card::after{content:'';position:absolute;bottom:0;left:0;width:100%;height:2px;background:var(--grad);transform:scaleX(0);transform-origin:left;transition:transform .6s var(--ease)}
+.imp-card.in::after{transform:scaleX(1)}
+.imp-num{font-family:var(--display);font-size:4rem;font-weight:800;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;margin-bottom:.6rem}
+.imp-label{font-family:var(--display);font-size:.62rem;font-weight:600;letter-spacing:.28em;text-transform:uppercase;color:var(--muted)}
+.imp-sub{font-size:.8rem;line-height:1.8;color:var(--sub);margin-top:.5rem}
+
+/* ── Testimonials strip ── */
+#testimonials{padding:7rem 5vw;background:var(--bg)}
+.test-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:4rem}
+.test-card{background:var(--bg2);border:1px solid rgba(255,255,255,.04);padding:2.5rem;position:relative;overflow:hidden;transition:border-color .4s,transform .4s var(--ease)}
+.test-card:hover{border-color:rgba(0,240,192,.2);transform:translateY(-6px)}
+.test-stars{display:flex;gap:.2rem;margin-bottom:1.5rem;color:var(--c1);font-size:.9rem}
+.test-q{font-family:var(--display);font-size:1rem;font-weight:500;line-height:1.6;color:var(--text);margin-bottom:1.5rem}
+.test-auth{font-family:var(--display);font-size:.62rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--c1)}
+.test-role{font-size:.78rem;color:var(--muted);margin-top:.3rem}
+.test-top-line{position:absolute;top:0;left:0;width:0;height:2px;background:var(--grad);transition:width .5s var(--ease)}
+.test-card:hover .test-top-line{width:100%}
+
+/* ── CTA ── */
+#cta{padding:8rem 5vw;background:var(--bg2);text-align:center;position:relative;overflow:hidden}
+.cta-glow{position:absolute;inset:0;background:radial-gradient(ellipse 70% 70% at 50% 50%,rgba(0,240,192,.05) 0%,rgba(123,92,240,.04) 50%,transparent 70%);pointer-events:none}
+.cta-inner{position:relative;max-width:700px;margin:0 auto}
+.cta-title{font-family:var(--display);font-size:clamp(2.5rem,6vw,5.5rem);font-weight:800;letter-spacing:-.03em;line-height:.95;margin-bottom:1.5rem;color:var(--text)}
+.cta-title em{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-style:normal}
+.cta-sub{font-size:1rem;line-height:1.9;color:var(--muted);margin-bottom:3rem}
+.cta-btns{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
+
+/* footer */
+footer{background:var(--bg);border-top:1px solid rgba(255,255,255,.04);padding:4rem 5vw 2rem}
+.foot-bot{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+.foot-logo{display:flex;align-items:center;gap:.6rem;text-decoration:none}
+.foot-logo-mark{width:24px;height:24px;background:var(--grad);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%)}
+.foot-logo-text{font-family:var(--display);font-size:.8rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text)}
+.foot-copy{font-family:var(--display);font-size:.62rem;font-weight:500;letter-spacing:.1em;color:var(--muted)}
+
+/* Buttons */
+.btn-p,.btn-g{position:relative;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;gap:.65rem;padding:1rem 2.6rem;font-family:var(--display);font-size:.72rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;text-decoration:none;cursor:none;transition:transform .3s var(--ease),box-shadow .3s}
+.btn-p{background:var(--grad);color:var(--bg);border:none}
+.btn-p::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--c3),var(--c1));opacity:0;transition:opacity .4s}
+.btn-p:hover::before{opacity:1}
+.btn-p:hover{transform:translateY(-4px);box-shadow:0 20px 60px rgba(0,240,192,.3)}
+.btn-g{background:transparent;color:var(--text);border:1px solid rgba(237,240,255,.15)}
+.btn-g:hover{border-color:var(--c1);color:var(--c1);transform:translateY(-4px)}
+.btn-p span,.btn-g span{position:relative;z-index:1}
+.btn-arr{font-size:1.1rem;transition:transform .3s var(--ease)}
+.btn-p:hover .btn-arr,.btn-g:hover .btn-arr{transform:translateX(4px)}
+.magnetic{display:inline-block}
+
+/* reveals */
+.rv{opacity:0;transform:translateY(45px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
+.rv.in{opacity:1;transform:translateY(0)}
+.rv-l{opacity:0;transform:translateX(-45px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
+.rv-l.in{opacity:1;transform:translateX(0)}
+.stg>*{opacity:0;transform:translateY(30px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.stg.in>*:nth-child(1){opacity:1;transform:none;transition-delay:.0s}
+.stg.in>*:nth-child(2){opacity:1;transform:none;transition-delay:.08s}
+.stg.in>*:nth-child(3){opacity:1;transform:none;transition-delay:.16s}
+.stg.in>*:nth-child(4){opacity:1;transform:none;transition-delay:.24s}
+.stg.in>*:nth-child(5){opacity:1;transform:none;transition-delay:.32s}
+.stg.in>*:nth-child(6){opacity:1;transform:none;transition-delay:.40s}
+.stg.in>*:nth-child(7){opacity:1;transform:none;transition-delay:.48s}
+.stg.in>*:nth-child(8){opacity:1;transform:none;transition-delay:.56s}
+.stg.in>*:nth-child(9){opacity:1;transform:none;transition-delay:.64s}
+.stg.in>*:nth-child(10){opacity:1;transform:none;transition-delay:.72s}
+.stg.in>*:nth-child(11){opacity:1;transform:none;transition-delay:.80s}
+.stg.in>*:nth-child(12){opacity:1;transform:none;transition-delay:.88s}
+
+/* ripple */
+.ripple{position:absolute;border-radius:50%;background:rgba(0,240,192,.18);transform:scale(0);animation:ripA .65s var(--ease) forwards;pointer-events:none;z-index:10}
+@keyframes ripA{to{transform:scale(5);opacity:0}}
+
+@media(max-width:1100px){
+  .cases-grid{display:flex;flex-direction:column}
+  .case-card.span-12{display:flex;flex-direction:column}
+  .case-card.span-12 .cc-visual{min-height:320px}
+  .csd-grid{grid-template-columns:1fr;gap:3rem}
+  .csd-sidebar{position:relative;top:auto}
+  .impact-grid{grid-template-columns:1fr 1fr}
+  .test-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:700px){
+  .nav-links{display:none}
+  .test-grid{grid-template-columns:1fr}
+  .impact-grid{grid-template-columns:1fr 1fr}
+  .cta-btns{flex-direction:column;align-items:center}
+  .cc-metrics{grid-template-columns:1fr 1fr}
+  .filter-inner{gap:.4rem}
+}
+</style>
+</head>
+<body>
+
+<!-- Scroll progress -->
+<div id="spbar"></div>
+
+<!-- Cursor -->
+<div id="cdot"></div>
+<div id="cring"></div>
+<div id="clabel"></div>
+
+<!-- Nav -->
+<nav id="nav">
+  <a href="index.html" class="nav-logo" aria-label="Kinesis Media">
+    <div class="nav-logo-mark"></div>
+    <span class="nav-logo-text">Kinesis Media</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html#services">Services</a></li>
+    <li><a href="index.html#work">Work</a></li>
+    <li><a href="index.html#about">About</a></li>
+    <li><a href="case-studies.html" class="active">Case Studies</a></li>
+  </ul>
+  <a href="index.html#cta" class="nav-cta magnetic">Get Started</a>
+</nav>
+
+<!-- Page Hero -->
+<section id="page-hero">
+  <div class="ph-grid"></div>
+  <div class="ph-glow"></div>
+  <div class="ph-inner">
+    <span class="eyebrow">Our Work</span>
+    <h1 class="ph-title">Case <em>Studies</em></h1>
+    <p class="ph-sub">Real projects, real results. Dive into the work we've done and the impact we've created for brands across industries.</p>
+  </div>
+</section>
+
+<!-- Filters -->
+<div id="filters">
+  <div class="filter-inner">
+    <span class="filter-label">Filter:</span>
+    <button class="filter-btn active" data-filter="all">All Work</button>
+    <button class="filter-btn" data-filter="video">Video Production</button>
+    <button class="filter-btn" data-filter="social">Social Content</button>
+    <button class="filter-btn" data-filter="ads">Paid Media</button>
+    <button class="filter-btn" data-filter="brand">Brand Strategy</button>
+    <button class="filter-btn" data-filter="event">Event Coverage</button>
+  </div>
+</div>
+
+<!-- Case Studies Grid -->
+<section id="cases">
+  <div class="cases-grid stg" id="cases-grid">
+
+    <!-- Case 1 — Featured / Large -->
+    <div class="case-card span-12" data-categories="video brand" data-id="novatech">
+      <div class="cc-visual">
+        <div class="cc-bg" style="background:linear-gradient(135deg,#071A2E 0%,#0A2A48 40%,#071E38 100%);display:flex;align-items:center;justify-content:center;">
+          <svg width="200" height="200" viewBox="0 0 200 200" fill="none" opacity=".08"><circle cx="100" cy="100" r="80" stroke="#00F0C0" stroke-width="1"/><circle cx="100" cy="100" r="55" stroke="#00F0C0" stroke-width="1"/><circle cx="100" cy="100" r="30" stroke="#00F0C0" stroke-width="1"/><path d="M100 20v160M20 100h160M44 44l112 112M156 44L44 156" stroke="#00F0C0" stroke-width=".5" opacity=".5"/></svg>
+        </div>
+        <div class="cc-ov" style="background:linear-gradient(to right,rgba(8,9,14,.95) 0%,rgba(8,9,14,.3) 50%,rgba(8,9,14,.05) 100%)"></div>
+        <div class="cc-badge"><span class="tag tag-c1">Featured</span></div>
+        <div class="cc-play"><div class="cc-play-btn"><div class="cc-play-icon"></div></div></div>
+      </div>
+      <div class="cc-body">
+        <div class="cc-tags">
+          <span class="tag tag-c1">Brand Film</span>
+          <span class="tag tag-c3">Strategy</span>
+          <span class="tag tag-c2">Launch Campaign</span>
+        </div>
+        <div class="cc-client">NovaTech Solutions · 2024</div>
+        <h2 class="cc-title">The Launch That Changed Everything</h2>
+        <p class="cc-desc">NovaTech needed to launch their AI productivity platform in a crowded market. We built a cinematic brand film, a 6-part social series, and a paid media strategy that made them impossible to ignore — generating over 12 million organic views and a 340% spike in website traffic on launch week.</p>
+        <div class="cc-metrics">
+          <div class="ccm"><div class="ccm-val">12M+</div><div class="ccm-label">Organic Views</div></div>
+          <div class="ccm"><div class="ccm-val">340%</div><div class="ccm-label">Traffic Increase</div></div>
+          <div class="ccm"><div class="ccm-val">4.2x</div><div class="ccm-label">ROAS</div></div>
+        </div>
+        <a href="#" class="cc-link" data-open="novatech">Read Full Case Study →</a>
+      </div>
+    </div>
+
+    <!-- Case 2 -->
+    <div class="case-card span-7" data-categories="ads social" data-id="apex">
+      <div class="cc-visual">
+        <div class="cc-bg" style="background:linear-gradient(145deg,#1A0D1A,#2D0020,#1A0A15);display:flex;align-items:center;justify-content:center;">
+          <svg width="120" height="120" viewBox="0 0 120 120" fill="none" opacity=".1"><path d="M60 10L110 85H10L60 10Z" stroke="#FF3E6C" stroke-width="1.5"/><path d="M60 35L90 80H30L60 35Z" stroke="#FF3E6C" stroke-width="1"/></svg>
+        </div>
+        <div class="cc-ov" style="background:linear-gradient(to top,rgba(8,9,14,1) 0%,rgba(8,9,14,.4) 50%,transparent 80%)"></div>
+        <div class="cc-play"><div class="cc-play-btn"><div class="cc-play-icon"></div></div></div>
+      </div>
+      <div class="cc-body">
+        <div class="cc-tags">
+          <span class="tag tag-c2">Paid Ads</span>
+          <span class="tag tag-c1">Video</span>
+        </div>
+        <div class="cc-client">Apex Fitness · 2024</div>
+        <h2 class="cc-title">8x ROAS. $2.4M Revenue.</h2>
+        <p class="cc-desc">A performance ad campaign built around high-energy creative that converted at unprecedented rates across Meta and YouTube.</p>
+        <div class="cc-metrics">
+          <div class="ccm"><div class="ccm-val">8x</div><div class="ccm-label">ROAS</div></div>
+          <div class="ccm"><div class="ccm-val">$2.4M</div><div class="ccm-label">Revenue</div></div>
+        </div>
+        <a href="#" class="cc-link" data-open="apex">Read Full Case Study →</a>
+      </div>
+    </div>
+
+    <!-- Case 3 -->
+    <div class="case-card span-5" data-categories="social brand" data-id="elara">
+      <div class="cc-visual">
+        <div class="cc-bg" style="background:linear-gradient(145deg,#0D1A2D,#0A1528,#0D1A20);display:flex;align-items:center;justify-content:center;">
+          <svg width="100" height="100" viewBox="0 0 100 100" fill="none" opacity=".1"><rect x="15" y="15" width="30" height="35" rx="2" stroke="#7B5CF0" stroke-width="1.5"/><rect x="55" y="15" width="30" height="20" rx="2" stroke="#7B5CF0" stroke-width="1.5"/><rect x="55" y="45" width="30" height="40" rx="2" stroke="#7B5CF0" stroke-width="1.5"/><rect x="15" y="60" width="30" height="25" rx="2" stroke="#7B5CF0" stroke-width="1.5"/></svg>
+        </div>
+        <div class="cc-ov" style="background:linear-gradient(to top,rgba(8,9,14,1) 0%,rgba(8,9,14,.4) 50%,transparent 80%)"></div>
+        <div class="cc-play"><div class="cc-play-btn"><div class="cc-play-icon"></div></div></div>
+      </div>
+      <div class="cc-body">
+        <div class="cc-tags">
+          <span class="tag tag-c3">Social Media</span>
+          <span class="tag tag-c1">Brand</span>
+        </div>
+        <div class="cc-client">Elara Lifestyle · 2024</div>
+        <h2 class="cc-title">4.2M Followers in 9 Months</h2>
+        <p class="cc-desc">A full social content strategy and production pipeline that turned a mid-sized lifestyle brand into a cultural conversation.</p>
+        <div class="cc-metrics">
+          <div class="ccm"><div class="ccm-val">4.2M</div><div class="ccm-label">Followers</div></div>
+          <div class="ccm"><div class="ccm-val">9mo</div><div class="ccm-label">Timeline</div></div>
+        </div>
+        <a href="#" class="cc-link" data-open="elara">Read Full Case Study →</a>
+      </div>
+    </div>
+
+    <!-- Case 4 -->
+    <div class="case-card span-5" data-categories="event video" data-id="summit">
+      <div class="cc-visual">
+        <div class="cc-bg" style="background:linear-gradient(145deg,#0D1A14,#0A1810,#0D1A0E);display:flex;align-items:center;justify-content:center;">
+          <svg width="100" height="100" viewBox="0 0 100 100" fill="none" opacity=".1"><path d="M10 80L35 30L55 55L75 35L90 60" stroke="#00F0C0" stroke-width="2" stroke-linecap="round"/><circle cx="35" cy="30" r="4" fill="#00F0C0"/><circle cx="75" cy="35" r="4" fill="#00F0C0"/></svg>
+        </div>
+        <div class="cc-ov" style="background:linear-gradient(to top,rgba(8,9,14,1) 0%,rgba(8,9,14,.4) 50%,transparent 80%)"></div>
+        <div class="cc-play"><div class="cc-play-btn"><div class="cc-play-icon"></div></div></div>
+      </div>
+      <div class="cc-body">
+        <div class="cc-tags">
+          <span class="tag tag-c1">Event</span>
+          <span class="tag tag-c3">Documentary</span>
+        </div>
+        <div class="cc-client">Summit Co. · 2023</div>
+        <h2 class="cc-title">Summit 2023 — 3 Days. 28 Deliverables.</h2>
+        <p class="cc-desc">Multi-camera event coverage turned into a landmark documentary film that became a cornerstone of Summit's marketing library.</p>
+        <div class="cc-metrics">
+          <div class="ccm"><div class="ccm-val">28</div><div class="ccm-label">Deliverables</div></div>
+          <div class="ccm"><div class="ccm-val">3.1M</div><div class="ccm-label">Total Views</div></div>
+        </div>
+        <a href="#" class="cc-link" data-open="summit">Read Full Case Study →</a>
+      </div>
+    </div>
+
+    <!-- Case 5 -->
+    <div class="case-card span-7" data-categories="brand video" data-id="meridian">
+      <div class="cc-visual">
+        <div class="cc-bg" style="background:linear-gradient(145deg,#1A1A0D,#28260A,#1A1808);display:flex;align-items:center;justify-content:center;">
+          <svg width="120" height="120" viewBox="0 0 120 120" fill="none" opacity=".1"><circle cx="60" cy="60" r="45" stroke="#7B5CF0" stroke-width="1.5"/><path d="M60 20v80M20 60h80" stroke="#7B5CF0" stroke-width="1"/><path d="M30 30l60 60M90 30L30 90" stroke="#7B5CF0" stroke-width=".5"/></svg>
+        </div>
+        <div class="cc-ov" style="background:linear-gradient(to top,rgba(8,9,14,1) 0%,rgba(8,9,14,.4) 50%,transparent 80%)"></div>
+        <div class="cc-play"><div class="cc-play-btn"><div class="cc-play-icon"></div></div></div>
+      </div>
+      <div class="cc-body">
+        <div class="cc-tags">
+          <span class="tag tag-c3">Brand Strategy</span>
+          <span class="tag tag-c1">Video</span>
+        </div>
+        <div class="cc-client">Meridian Health · 2023</div>
+        <h2 class="cc-title">Rebranding a Healthcare Giant</h2>
+        <p class="cc-desc">A full brand overhaul — identity, messaging framework, and a suite of video content — that repositioned Meridian as the most trusted voice in preventive health. Patient acquisition increased 62% post-launch.</p>
+        <div class="cc-metrics">
+          <div class="ccm"><div class="ccm-val">62%</div><div class="ccm-label">Patient Acquisition</div></div>
+          <div class="ccm"><div class="ccm-val">18mo</div><div class="ccm-label">Project Scope</div></div>
+          <div class="ccm"><div class="ccm-val">5★</div><div class="ccm-label">Client Rating</div></div>
+        </div>
+        <a href="#" class="cc-link" data-open="meridian">Read Full Case Study →</a>
+      </div>
+    </div>
+
+    <!-- Case 6 -->
+    <div class="case-card span-4" data-categories="social ads" data-id="solaris">
+      <div class="cc-visual">
+        <div class="cc-bg" style="background:linear-gradient(145deg,#1A0A06,#2D1008,#1A0A04);display:flex;align-items:center;justify-content:center;">
+          <svg width="80" height="80" viewBox="0 0 80 80" fill="none" opacity=".12"><circle cx="40" cy="40" r="20" fill="none" stroke="#FF3E6C" stroke-width="1.5"/><path d="M40 10v8M40 62v8M10 40h8M62 40h8M19 19l5.6 5.6M55.4 55.4l5.6 5.6M61 19l-5.6 5.6M24.6 55.4L19 61" stroke="#FF3E6C" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div class="cc-ov" style="background:linear-gradient(to top,rgba(8,9,14,1) 0%,rgba(8,9,14,.4) 50%,transparent 80%)"></div>
+        <div class="cc-play"><div class="cc-play-btn"><div class="cc-play-icon"></div></div></div>
+      </div>
+      <div class="cc-body">
+        <div class="cc-tags">
+          <span class="tag tag-c2">Social</span>
+          <span class="tag tag-c1">Ads</span>
+        </div>
+        <div class="cc-client">Solaris Drinks · 2023</div>
+        <h2 class="cc-title">Zero to Viral</h2>
+        <p class="cc-desc">A beverage startup hit 1M TikTok followers in 45 days with our short-form content engine.</p>
+        <div class="cc-metrics">
+          <div class="ccm"><div class="ccm-val">1M</div><div class="ccm-label">Followers</div></div>
+          <div class="ccm"><div class="ccm-val">45d</div><div class="ccm-label">Timeline</div></div>
+        </div>
+        <a href="#" class="cc-link" data-open="solaris">Read Full Case Study →</a>
+      </div>
+    </div>
+
+    <!-- Case 7 -->
+    <div class="case-card span-4" data-categories="video brand" data-id="crux">
+      <div class="cc-visual">
+        <div class="cc-bg" style="background:linear-gradient(145deg,#141414,#1A1A1A,#0F0F0F);display:flex;align-items:center;justify-content:center;">
+          <svg width="80" height="80" viewBox="0 0 80 80" fill="none" opacity=".12"><path d="M20 20l40 40M20 60l40-40" stroke="#00F0C0" stroke-width="2" stroke-linecap="round"/><rect x="10" y="10" width="60" height="60" stroke="#00F0C0" stroke-width="1"/></svg>
+        </div>
+        <div class="cc-ov" style="background:linear-gradient(to top,rgba(8,9,14,1) 0%,rgba(8,9,14,.4) 50%,transparent 80%)"></div>
+        <div class="cc-play"><div class="cc-play-btn"><div class="cc-play-icon"></div></div></div>
+      </div>
+      <div class="cc-body">
+        <div class="cc-tags">
+          <span class="tag tag-c1">Brand Film</span>
+        </div>
+        <div class="cc-client">Crux Apparel · 2023</div>
+        <h2 class="cc-title">Lifestyle Meets Performance</h2>
+        <p class="cc-desc">A cinematic brand film that positioned Crux at the intersection of street culture and athletic performance.</p>
+        <div class="cc-metrics">
+          <div class="ccm"><div class="ccm-val">8.8M</div><div class="ccm-label">Views</div></div>
+          <div class="ccm"><div class="ccm-val">220%</div><div class="ccm-label">Sales Uplift</div></div>
+        </div>
+        <a href="#" class="cc-link" data-open="crux">Read Full Case Study →</a>
+      </div>
+    </div>
+
+    <!-- Case 8 -->
+    <div class="case-card span-4" data-categories="event video" data-id="luma">
+      <div class="cc-visual">
+        <div class="cc-bg" style="background:linear-gradient(145deg,#0A0D1A,#0D1020,#0A0D1A);display:flex;align-items:center;justify-content:center;">
+          <svg width="80" height="80" viewBox="0 0 80 80" fill="none" opacity=".12"><path d="M40 12L68 68H12L40 12Z" stroke="#7B5CF0" stroke-width="1.5"/><path d="M40 28L58 62H22L40 28Z" stroke="#7B5CF0" stroke-width="1"/></svg>
+        </div>
+        <div class="cc-ov" style="background:linear-gradient(to top,rgba(8,9,14,1) 0%,rgba(8,9,14,.4) 50%,transparent 80%)"></div>
+        <div class="cc-play"><div class="cc-play-btn"><div class="cc-play-icon"></div></div></div>
+      </div>
+      <div class="cc-body">
+        <div class="cc-tags">
+          <span class="tag tag-c3">Event</span>
+          <span class="tag tag-c1">Film</span>
+        </div>
+        <div class="cc-client">Luma Hotels · 2022</div>
+        <h2 class="cc-title">Grand Opening, Grand Story</h2>
+        <p class="cc-desc">Opening weekend coverage and a hero brand film for Luma's flagship property launch.</p>
+        <div class="cc-metrics">
+          <div class="ccm"><div class="ccm-val">98%</div><div class="ccm-label">Occupancy Q1</div></div>
+          <div class="ccm"><div class="ccm-val">5.2M</div><div class="ccm-label">Video Views</div></div>
+        </div>
+        <a href="#" class="cc-link" data-open="luma">Read Full Case Study →</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Impact Numbers -->
+<section id="impact">
+  <div class="impact-inner">
+    <div class="rv">
+      <span class="eyebrow">Collective Impact</span>
+      <h2 style="font-family:var(--display);font-size:clamp(2.4rem,5vw,4rem);font-weight:800;letter-spacing:-.02em;color:var(--text)">The Numbers <span style="background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Behind the Work</span></h2>
+    </div>
+    <div class="impact-grid">
+      <div class="imp-card">
+        <div class="imp-num" data-target="50" data-suffix="M+">0M+</div>
+        <div class="imp-label">Total Views Generated</div>
+        <div class="imp-sub">Across all client content</div>
+      </div>
+      <div class="imp-card">
+        <div class="imp-num" data-target="250" data-suffix="+">0+</div>
+        <div class="imp-label">Projects Delivered</div>
+        <div class="imp-sub">On time and on brief</div>
+      </div>
+      <div class="imp-card">
+        <div class="imp-num" data-target="6" data-suffix="x">0x</div>
+        <div class="imp-label">Average ROAS</div>
+        <div class="imp-sub">For paid media campaigns</div>
+      </div>
+      <div class="imp-card">
+        <div class="imp-num" data-target="98" data-suffix="%">0%</div>
+        <div class="imp-label">Client Retention Rate</div>
+        <div class="imp-sub">Year over year</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials -->
+<section id="testimonials">
+  <div class="rv" style="text-align:center;margin-bottom:1rem">
+    <span class="eyebrow" style="justify-content:center">Directly From Clients</span>
+    <h2 style="font-family:var(--display);font-size:clamp(2.4rem,5vw,4rem);font-weight:800;letter-spacing:-.02em;color:var(--text)">What They <span style="background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Actually Said</span></h2>
+  </div>
+  <div class="test-grid stg">
+    <div class="test-card">
+      <div class="test-top-line"></div>
+      <div class="test-stars">★★★★★</div>
+      <p class="test-q">"Kinesis took our product launch from decent to absolutely electric. The film drove more first-week sales than our last three launches combined."</p>
+      <div class="test-auth">Sarah Chen</div>
+      <div class="test-role">CMO, NovaTech Solutions</div>
+    </div>
+    <div class="test-card">
+      <div class="test-top-line"></div>
+      <div class="test-stars">★★★★★</div>
+      <p class="test-q">"They don't just make pretty videos — they understand business. Our paid ad campaign ran for 14 months with a consistent 8x ROAS. Unheard of."</p>
+      <div class="test-auth">Marcus Williams</div>
+      <div class="test-role">Founder, Apex Fitness</div>
+    </div>
+    <div class="test-card">
+      <div class="test-top-line"></div>
+      <div class="test-stars">★★★★★</div>
+      <p class="test-q">"Working with Kinesis feels like having a creative director, strategist, and production crew all in one. Seamless, professional, and genuinely talented."</p>
+      <div class="test-auth">Leila Faisal</div>
+      <div class="test-role">Brand Director, Elara Lifestyle</div>
+    </div>
+    <div class="test-card">
+      <div class="test-top-line"></div>
+      <div class="test-stars">★★★★★</div>
+      <p class="test-q">"We handed them a 3-day conference and they delivered a recap film that made our CEO cry. In a good way. The storytelling was exceptional."</p>
+      <div class="test-auth">David Park</div>
+      <div class="test-role">Events Lead, Summit Co.</div>
+    </div>
+    <div class="test-card">
+      <div class="test-top-line"></div>
+      <div class="test-stars">★★★★★</div>
+      <p class="test-q">"Meridian's rebrand with Kinesis was transformational. Patient trust scores jumped 40 points within the first quarter of the new campaign."</p>
+      <div class="test-auth">Dr. Ana Torres</div>
+      <div class="test-role">Chief Marketing Officer, Meridian Health</div>
+    </div>
+    <div class="test-card">
+      <div class="test-top-line"></div>
+      <div class="test-stars">★★★★★</div>
+      <p class="test-q">"As a startup, we had no marketing budget for failure. Kinesis delivered. 1M TikTok followers in 45 days. Our investors couldn't believe it."</p>
+      <div class="test-auth">Jade Kim</div>
+      <div class="test-role">Co-Founder, Solaris Drinks</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta">
+  <div class="cta-glow"></div>
+  <div class="cta-inner rv">
+    <span class="eyebrow" style="justify-content:center">Start Your Story</span>
+    <h2 class="cta-title">Your Brand's<br><em>Case Study</em><br>Starts Here</h2>
+    <p class="cta-sub">Every great result started with a single conversation. Tell us about your project and we'll show you what's possible.</p>
+    <div class="cta-btns">
+      <a href="mailto:hello@kinesismedia.co" class="btn-p magnetic"><span>Start a Project</span><span class="btn-arr">→</span></a>
+      <a href="index.html" class="btn-g magnetic"><span>Back to Home</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="foot-bot">
+    <a href="index.html" class="foot-logo">
+      <div class="foot-logo-mark"></div>
+      <span class="foot-logo-text">Kinesis Media</span>
+    </a>
+    <span class="foot-copy">&copy; 2025 Kinesis Media. All rights reserved.</span>
+    <span class="foot-copy" style="color:rgba(0,240,192,.3)">We Make Brands Move ◈</span>
+  </div>
+</footer>
+
+<!-- Case Study Detail Overlays -->
+<div class="cs-detail" id="detail-novatech">
+  <button class="csd-close" id="close-novatech">✕</button>
+  <div class="csd-hero">
+    <div class="csd-bg" style="background:linear-gradient(135deg,#071A2E,#0A2A48,#071E38)"></div>
+    <div class="csd-ov"></div>
+    <div class="csd-inner">
+      <div class="csd-tags"><span class="tag tag-c1">Brand Film</span><span class="tag tag-c3">Strategy</span><span class="tag tag-c2">Launch Campaign</span></div>
+      <h1 class="csd-title">NovaTech: The Launch That Changed Everything</h1>
+      <div class="csd-client">NovaTech Solutions · 2024</div>
+    </div>
+  </div>
+  <div class="csd-body">
+    <div class="csd-grid">
+      <div class="csd-content">
+        <h2>The Challenge</h2>
+        <p>NovaTech Solutions was entering one of the most competitive markets in the world — AI-powered productivity software. With dozens of well-funded incumbents and a launch window of just 6 weeks, they needed content that didn't just introduce a product. They needed content that started a movement.</p>
+        <p>They came to us with a clear brief: make people feel something about software. That's not easy. Most enterprise tech marketing is cold, feature-driven, and forgettable. We were determined to make NovaTech the exception.</p>
+        <div class="csd-quote">
+          "We didn't want another product demo. We wanted to make people feel what it's like to work without friction — to show the human side of productivity."
+          <div class="csd-quote-author">— Sarah Chen, CMO, NovaTech Solutions</div>
+        </div>
+        <h3>Our Approach</h3>
+        <p>We spent three weeks in discovery — interviewing NovaTech's team, shadowing power users, and mapping the emotional journey of their ideal customer. The insight that unlocked everything: people don't want to be more productive. They want to be present for the moments that matter. NovaTech gives them back their time.</p>
+        <p>That became the creative core: <em>Time Back</em>. A cinematic brand manifesto film that told the story of a world slowed down, then powered forward by NovaTech's platform.</p>
+        <h3>What We Delivered</h3>
+        <ul>
+          <li>3-minute cinematic brand manifesto film (hero asset)</li>
+          <li>6-part social documentary series (behind the product)</li>
+          <li>30-second and 15-second paid media cuts for Meta and YouTube</li>
+          <li>Platform-specific social content calendar (12-week rollout)</li>
+          <li>Full launch distribution strategy and media buy guidance</li>
+          <li>Photography suite for editorial and OOH placements</li>
+        </ul>
+        <h3>The Results</h3>
+        <p>Launch week exceeded every benchmark. The hero film generated 12 million organic views across LinkedIn, YouTube, and X without a single dollar of paid promotion behind it. NovaTech's website traffic spiked 340% and held at 180% above baseline through the following quarter.</p>
+        <p>The 15-second paid cuts ran for 9 months at a 4.2x ROAS, becoming the control creative against which all subsequent NovaTech ads were tested. The campaign was shortlisted for three B2B Marketing Awards and won the Tech Brand of the Year category at the Digital Content Awards.</p>
+      </div>
+      <div class="csd-sidebar">
+        <div class="csd-meta">
+          <div class="csd-meta-title">Project Details</div>
+          <div class="csd-meta-row"><span class="csd-meta-key">Client</span><span class="csd-meta-val">NovaTech Solutions</span></div>
+          <div class="csd-meta-row"><span class="csd-meta-key">Year</span><span class="csd-meta-val">2024</span></div>
+          <div class="csd-meta-row"><span class="csd-meta-key">Duration</span><span class="csd-meta-val">8 Weeks</span></div>
+          <div class="csd-meta-row"><span class="csd-meta-key">Services</span><span class="csd-meta-val">Brand Film, Social, Paid Media, Strategy</span></div>
+          <div class="csd-meta-row"><span class="csd-meta-key">Industry</span><span class="csd-meta-val">B2B SaaS / AI</span></div>
+        </div>
+        <div class="csd-kpis">
+          <div class="csd-kpis-title">Key Results</div>
+          <div class="csd-kpi"><div class="csd-kpi-val">12M+</div><div class="csd-kpi-label">Organic Views (Launch Week)</div></div>
+          <div class="csd-kpi"><div class="csd-kpi-val">340%</div><div class="csd-kpi-label">Website Traffic Increase</div></div>
+          <div class="csd-kpi"><div class="csd-kpi-val">4.2x</div><div class="csd-kpi-label">ROAS (Paid Media)</div></div>
+          <div class="csd-kpi"><div class="csd-kpi-val">3</div><div class="csd-kpi-label">Award Nominations</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="cs-detail" id="detail-apex">
+  <button class="csd-close" id="close-apex">✕</button>
+  <div class="csd-hero">
+    <div class="csd-bg" style="background:linear-gradient(135deg,#1A0D1A,#2D0020,#1A0A15)"></div>
+    <div class="csd-ov"></div>
+    <div class="csd-inner">
+      <div class="csd-tags"><span class="tag tag-c2">Paid Ads</span><span class="tag tag-c1">Video</span></div>
+      <h1 class="csd-title">Apex Fitness: 8x ROAS. $2.4M Revenue.</h1>
+      <div class="csd-client">Apex Fitness · 2024</div>
+    </div>
+  </div>
+  <div class="csd-body">
+    <div class="csd-grid">
+      <div class="csd-content">
+        <h2>The Challenge</h2>
+        <p>Apex Fitness had a great product — an online coaching platform — but their ad creative was bleeding budget with sub-2x returns. They'd tried three agencies before us. The content wasn't converting and they were running out of patience.</p>
+        <p>They gave us 90 days to prove a different approach. We didn't just replace their creative — we rebuilt the entire performance ecosystem from the ground up.</p>
+        <div class="csd-quote">
+          "Every agency promised results. Kinesis actually delivered. The difference was that they understood our customer as well as we did — maybe better."
+          <div class="csd-quote-author">— Marcus Williams, Founder, Apex Fitness</div>
+        </div>
+        <h3>Our Approach</h3>
+        <p>We ran deep customer research: interviews, survey analysis, and competitive creative audits. The insight: Apex's customers weren't motivated by aesthetics — they were motivated by the fear of falling behind. We built creative around ambition, not vanity.</p>
+        <p>Then we built a high-volume creative testing system: 24 unique ad concepts across 3 hooks, 4 body variations, and 2 CTAs — deployed across Meta and YouTube in structured A/B tests with weekly iteration cycles.</p>
+        <h3>What We Delivered</h3>
+        <ul>
+          <li>24 unique ad creative variants across multiple formats</li>
+          <li>Structured A/B testing framework with weekly reporting</li>
+          <li>UGC-style, testimonial, and cinematic creative formats</li>
+          <li>Platform-specific optimization for Meta and YouTube</li>
+          <li>Monthly creative refresh cadence to combat ad fatigue</li>
+        </ul>
+        <h3>The Results</h3>
+        <p>By week 6, we'd identified the control creative. By week 10, ROAS had climbed to 8x. Over the 14-month campaign run, Apex attributed $2.4M in direct revenue to our content. The campaign became their biggest-ever revenue driver, outperforming their SEO and email channels combined.</p>
+      </div>
+      <div class="csd-sidebar">
+        <div class="csd-meta">
+          <div class="csd-meta-title">Project Details</div>
+          <div class="csd-meta-row"><span class="csd-meta-key">Client</span><span class="csd-meta-val">Apex Fitness</span></div>
+          <div class="csd-meta-row"><span class="csd-meta-key">Year</span><span class="csd-meta-val">2024</span></div>
+          <div class="csd-meta-row"><span class="csd-meta-key">Duration</span><span class="csd-meta-val">14 Months</span></div>
+          <div class="csd-meta-row"><span class="csd-meta-key">Services</span><span class="csd-meta-val">Paid Media Creative, Strategy</span></div>
+          <div class="csd-meta-row"><span class="csd-meta-key">Industry</span><span class="csd-meta-val">Fitness / DTC</span></div>
+        </div>
+        <div class="csd-kpis">
+          <div class="csd-kpis-title">Key Results</div>
+          <div class="csd-kpi"><div class="csd-kpi-val">8x</div><div class="csd-kpi-label">Peak ROAS</div></div>
+          <div class="csd-kpi"><div class="csd-kpi-val">$2.4M</div><div class="csd-kpi-label">Revenue Attributed</div></div>
+          <div class="csd-kpi"><div class="csd-kpi-val">14mo</div><div class="csd-kpi-label">Campaign Longevity</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── Cursor ── */
+(()=>{
+  const dot=document.getElementById('cdot');
+  const ring=document.getElementById('cring');
+  const lbl=document.getElementById('clabel');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;dot.style.left=mx+'px';dot.style.top=my+'px';});
+  document.addEventListener('mousedown',()=>document.body.classList.add('c-clk'));
+  document.addEventListener('mouseup',()=>document.body.classList.remove('c-clk'));
+  (function loop(){rx+=(mx-rx)*.1;ry+=(my-ry)*.1;ring.style.left=rx+'px';ring.style.top=ry+'px';lbl.style.left=rx+'px';lbl.style.top=ry+'px';requestAnimationFrame(loop);})();
+  function addHov(els,label){
+    els.forEach(el=>{
+      el.addEventListener('mouseenter',()=>{lbl.textContent=label||'';document.body.classList.add('c-hov');});
+      el.addEventListener('mouseleave',()=>{lbl.textContent='';document.body.classList.remove('c-hov');});
+    });
+  }
+  addHov(document.querySelectorAll('a,button'),'');
+  addHov(document.querySelectorAll('.case-card'),'View');
+})();
+
+/* ── Scroll ── */
+window.addEventListener('scroll',()=>{
+  const p=window.scrollY/(document.body.scrollHeight-window.innerHeight);
+  document.getElementById('spbar').style.transform='scaleX('+p+')';
+  document.getElementById('nav').classList.toggle('scrolled',window.scrollY>60);
+},{passive:true});
+
+/* ── Filters ── */
+(()=>{
+  const btns=document.querySelectorAll('.filter-btn');
+  const cards=document.querySelectorAll('.case-card');
+  btns.forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      btns.forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const f=btn.dataset.filter;
+      cards.forEach(card=>{
+        if(f==='all'){
+          card.classList.remove('hidden');
+        } else {
+          const cats=(card.dataset.categories||'').split(' ');
+          card.classList.toggle('hidden',!cats.includes(f));
+        }
+      });
+      /* Re-trigger stagger */
+      const grid=document.getElementById('cases-grid');
+      grid.classList.remove('in');
+      requestAnimationFrame(()=>grid.classList.add('in'));
+    });
+  });
+})();
+
+/* ── Case study detail open/close ── */
+(()=>{
+  document.querySelectorAll('[data-open]').forEach(link=>{
+    link.addEventListener('click',e=>{
+      e.preventDefault();
+      const id=link.dataset.open;
+      const detail=document.getElementById('detail-'+id);
+      if(detail){detail.classList.add('open');document.body.style.overflow='hidden';}
+    });
+  });
+  document.querySelectorAll('.csd-close').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.cs-detail').forEach(d=>d.classList.remove('open'));
+      document.body.style.overflow='';
+    });
+  });
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'){
+      document.querySelectorAll('.cs-detail').forEach(d=>d.classList.remove('open'));
+      document.body.style.overflow='';
+    }
+  });
+})();
+
+/* ── Counters ── */
+(()=>{
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(!e.isIntersecting)return;
+      const el=e.target,target=+el.dataset.target,suf=el.dataset.suffix||'';
+      let t0=0;
+      (function step(ts){
+        if(!t0)t0=ts;const p=Math.min((ts-t0)/1600,1);
+        const ease=1-Math.pow(1-p,3);
+        el.textContent=Math.floor(ease*target)+suf;
+        if(p<1)requestAnimationFrame(step);else el.textContent=target+suf;
+      })(performance.now());
+      obs.unobserve(el);
+    });
+  },{threshold:.5});
+  document.querySelectorAll('[data-target]').forEach(el=>obs.observe(el));
+})();
+
+/* ── Scroll reveals ── */
+(()=>{
+  const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');}),{threshold:.08});
+  document.querySelectorAll('.rv,.rv-l,.stg,.imp-card,.test-card').forEach(el=>obs.observe(el));
+})();
+
+/* ── Magnetic ── */
+document.querySelectorAll('.magnetic').forEach(el=>{
+  el.addEventListener('mousemove',e=>{
+    const r=el.getBoundingClientRect();
+    const x=e.clientX-r.left-r.width/2,y=e.clientY-r.top-r.height/2;
+    el.style.transform='translate('+(x*.28)+'px,'+(y*.28)+'px)';
+  });
+  el.addEventListener('mouseleave',()=>{el.style.transform='';});
+});
+
+/* ── Ripple ── */
+function addRipple(el,e){
+  const r=document.createElement('div');r.className='ripple';
+  const rect=el.getBoundingClientRect(),sz=Math.max(rect.width,rect.height);
+  r.style.cssText='width:'+sz+'px;height:'+sz+'px;left:'+(e.clientX-rect.left-sz/2)+'px;top:'+(e.clientY-rect.top-sz/2)+'px';
+  el.appendChild(r);setTimeout(()=>r.remove(),700);
+}
+document.querySelectorAll('.btn-p,.btn-g,.nav-cta,.filter-btn').forEach(b=>b.addEventListener('click',e=>addRipple(b,e)));
+
+/* ── Hero title animation ── */
+(()=>{
+  const title=document.querySelector('.ph-title');
+  if(!title)return;
+  title.style.opacity='0';title.style.transform='translateY(40px)';
+  setTimeout(()=>{title.style.transition='opacity 1s cubic-bezier(0.16,1,0.3,1),transform 1s cubic-bezier(0.16,1,0.3,1)';title.style.opacity='1';title.style.transform='translateY(0)';},200);
+  const sub=document.querySelector('.ph-sub');
+  if(sub){sub.style.opacity='0';sub.style.transform='translateY(30px)';setTimeout(()=>{sub.style.transition='opacity 1s cubic-bezier(0.16,1,0.3,1),transform 1s cubic-bezier(0.16,1,0.3,1)';sub.style.opacity='1';sub.style.transform='translateY(0)';},500);}
+  const ey=document.querySelector('.eyebrow');
+  if(ey){ey.style.opacity='0';ey.style.transform='translateY(20px)';setTimeout(()=>{ey.style.transition='opacity .8s ease,transform .8s ease';ey.style.opacity='1';ey.style.transform='translateY(0)';},100);}
+})();
+</script>
+</body>
+</html>
